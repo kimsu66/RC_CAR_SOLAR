@@ -1,0 +1,6 @@
+../Core/Src/ultrasonic.c:34:13:TRIG_LEFT	16	static
+../Core/Src/ultrasonic.c:41:13:TRIG_CENTER	16	static
+../Core/Src/ultrasonic.c:48:13:TRIG_RIGHT	16	static
+../Core/Src/ultrasonic.c:56:6:Ultrasonic_Init	8	static
+../Core/Src/ultrasonic.c:64:6:Ultrasonic_Task	8	static
+../Core/Src/ultrasonic.c:91:6:Ultrasonic_IC_Callback	16	static

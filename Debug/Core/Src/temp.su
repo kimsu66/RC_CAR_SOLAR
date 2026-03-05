@@ -1,0 +1,5 @@
+../Core/Src/temp.c:12:10:read_adc	8	static
+../Core/Src/temp.c:22:9:ln_approx	16	static
+../Core/Src/temp.c:28:9:get_temperature	40	static
+../Core/Src/temp.c:55:6:print_temperature	64	static
+../Core/Src/temp.c:64:5:update_speed_by_temp	32	static
