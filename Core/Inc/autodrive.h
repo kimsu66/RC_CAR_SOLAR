@@ -10,6 +10,11 @@
 
 #include "main.h"
 
+extern uint8_t auto_mode;
+extern uint8_t current_speed;
+
+void Drive_Control(uint8_t cmd, uint8_t speed);
+
 // 초기화
 void AutoDrive_Init(void);
 

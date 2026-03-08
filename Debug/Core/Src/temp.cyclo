@@ -1,5 +1,6 @@
-../Core/Src/temp.c:12:10:read_adc	1
-../Core/Src/temp.c:22:9:ln_approx	1
-../Core/Src/temp.c:28:9:get_temperature	1
-../Core/Src/temp.c:55:6:print_temperature	1
-../Core/Src/temp.c:64:5:update_speed_by_temp	6
+../Core/Src/temp.c:17:10:Temp_ReadADC	1
+../Core/Src/temp.c:36:16:ln_approx	1
+../Core/Src/temp.c:42:9:Temp_CalcCelsius	1
+../Core/Src/temp.c:68:6:Temp_DebugPrint	1
+../Core/Src/temp.c:86:13:Temp_GetLevel	3
+../Core/Src/temp.c:94:13:Temp_TaskLevel	5

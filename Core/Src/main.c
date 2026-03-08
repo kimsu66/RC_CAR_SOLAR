@@ -37,10 +37,9 @@
 #include "delay.h"
 #include "ledbar.h"
 #include "temp.h"
-
-#include "car2.h"
 #include "ultrasonic.h"
 #include "autodrive.h"
+#include "gas.h"
 
 
 /* USER CODE END Includes */
@@ -89,26 +88,19 @@ PUTCHAR_PROTOTYPE
 
 /* USER CODE BEGIN PV */
 
+uint16_t adc_buf[2];   // [0]=Temp(PA6), [1]=Gas(PC2)
+
+// uart
+uint8_t rx1_data;
+
+volatile uint8_t uart1_flag = 0;
+volatile uint8_t uart1_cmd;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
-
-// uart variable
-uint8_t rx1_data;
-//uint8_t rx2_data;
-
-// temp adc variable
-uint32_t adc_value;
-//char msg[50];
-uint32_t voltage_mV;
-
-uint8_t current_speed = 50;   // 현재 적용 속도
-uint8_t base_speed;
-
-volatile uint8_t uart1_flag = 0;
-volatile uint8_t uart1_cmd;
 
 /* USER CODE END PFP */
 
@@ -173,99 +165,68 @@ int main(void)
   MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
 
-//  // 1) speed 모듈에 TIM2 채널 연결
+  HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_buf, 2);
+
+//  1) speed 모듈에 TIM2 채널 연결
   Speed_Init(&htim2, TIM_CHANNEL_1, &htim2, TIM_CHANNEL_2);
 //
-//  // 2) PWM Start + 초기 STOP
+//  2) PWM Start + 초기 STOP
   Car_Init();
 
-  // UART
+  // UART1
   HAL_UART_Receive_IT(&huart1, &rx1_data, 1);
-
-  // temp
-  base_speed = current_speed;
 
   // ultrasonic
   HAL_TIM_Base_Start(&htim11);
   Ultrasonic_Init();
+
   AutoDrive_Init();
 
-  uint8_t auto_mode = 0;
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-
-
   while (1)
   {
 
-/// ======= ultrasonic ========
-//  	Ultrasonic_Task();   // 논블로킹 초음파
-//  	AutoDrive_Run();
-  	if(auto_mode)
-  	    {
-  	        Ultrasonic_Task();
-  	        AutoDrive_Run();
-  	    }
+  	// 온도, 가스 상태 확인 (반환값 받기)
+  	TempLevel_t temp_status = Temp_TaskLevel();
+  	GasLevel_t gas_status = Gas_TaskPPM();
 
-//		 디버그 출력 (필요하면 주기 줄이기)
-		static uint32_t prev_print = 0;
-		if(HAL_GetTick() - prev_print > 200)
-		{
-				prev_print = HAL_GetTick();
-				printf("L:%d C:%d R:%d | %s\r\n",
-								dist_L, dist_C, dist_R, AutoDrive_GetActionString());
+  	// 온도, 가스에 따른 감
+  	if (gas_status != GAS_SAFE || temp_status != TEMP_SAFE) {
+				if (current_speed >= 5) current_speed -= 5;
+				else                   current_speed = 0;
+
+				// 가스 때문에 속도가 변할 때마다 즉시 적용
+				Drive_Control(uart1_cmd, current_speed);
 		}
+
+  	// uart1으로 통
+		if (uart1_flag) {
+				uart1_flag = 0;
+				Drive_Control(uart1_cmd, current_speed);
+				HAL_UART_Transmit(&huart2, (uint8_t*)&uart1_cmd, 1, 10);
+		}
+
+  	ultrasonic_uart2_debugmsg();
+
+  	// 자율주행모드
+  	if(auto_mode)
+		{
+				Ultrasonic_Task();
+				AutoDrive_Run();
+		}
+
+  	printf("=====================\r\n");
 
 /// ======= car test ========
 //  	Car_test();
 
-/// ======= temp sensor test =======
-  	/// ADC, voltage debugging cord using uart2 ///
-//  	read_adc();
-//  	adc_value = read_adc();
-//
-//  	printf("ADC: %lu\r\n", adc_value);
-//  	voltage_mV = (adc_value * 3300) / 4095;
-//  	printf("Voltage: %lu.%03lu V\r\n",
-//  	       voltage_mV / 1000,
-//  	       voltage_mV % 1000);
-//
-//  	int16_t temp = get_temperature();
-//  	/// /////////////////////////////////////// ///
-//
-//  	printf("Temp: %d C\r\n", temp);
-//
-//  	current_speed = update_speed_by_temp(temp, current_speed, base_speed);
-//  	Car_MovePercent(CAR_FRONT, current_speed);
-//
-//  	printf("Speed: %d %%\r\n", current_speed);
-//  	printf("===========\r\n");
-//  	HAL_Delay(1000);
+  	HAL_Delay(500);
 
-
-  	/// ======= uart1 =======
-  	if (uart1_flag)
-		{
-				uart1_flag = 0;
-
-				switch (uart1_cmd)
-				{
-						case 'w': auto_mode = 0; Car_Move(CAR_FRONT, SPD_50); break;
-						case 's': auto_mode = 0; Car_Move(CAR_BACK, SPD_50); break;
-						case 'a': auto_mode = 0; Car_Move(CAR_LEFT, SPD_50); break;
-						case 'd': auto_mode = 0; Car_Move(CAR_RIGHT, SPD_50); break;
-						case 'q': auto_mode = 1; break;   // 자율 ON
-
-						default: auto_mode = 0; Car_Stop(); break;
-				}
-
-				// 디버그 출력은 여기서
-				HAL_UART_Transmit(&huart2, (uint8_t*)&uart1_cmd, 1, 10);
-		}
 
 
     /* USER CODE END WHILE */

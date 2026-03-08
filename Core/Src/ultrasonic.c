@@ -7,6 +7,9 @@
 
 #include "ultrasonic.h"
 #include "tim.h"
+#include "autodrive.h"
+
+#include <stdio.h>
 
 // ================= 내부 변수 =================
 static uint16_t IC1_L = 0, IC2_L = 0;
@@ -155,4 +158,15 @@ void Ultrasonic_IC_Callback(TIM_HandleTypeDef *htim)
             __HAL_TIM_SET_CAPTUREPOLARITY(htim, TIM_CHANNEL_4, TIM_INPUTCHANNELPOLARITY_RISING);
         }
     }
+}
+
+void ultrasonic_uart2_debugmsg(void){
+		//		 디버그 출력
+		static uint32_t prev_print = 0;
+		if(HAL_GetTick() - prev_print > 200)
+		{
+				prev_print = HAL_GetTick();
+				printf("L:%d C:%d R:%d | %s\r\n",
+								dist_L, dist_C, dist_R, AutoDrive_GetActionString());
+		}
 }

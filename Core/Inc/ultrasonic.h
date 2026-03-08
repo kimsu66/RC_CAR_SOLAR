@@ -24,4 +24,7 @@ void Ultrasonic_Task(void);
 // IC 콜백 처리 함수
 void Ultrasonic_IC_Callback(TIM_HandleTypeDef *htim);
 
+// uart2로 디버그 메시지 출력, L, C, R, 행
+void ultrasonic_uart2_debugmsg(void);
+
 #endif /* INC_ULTRASONIC_H_ */

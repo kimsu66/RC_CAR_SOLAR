@@ -23,11 +23,25 @@ static uint8_t state_to_percent(speed_state_t st)
   switch (st)
   {
     case SPD_STOP: return 0;
+    case SPD_5:    return 5;
+    case SPD_10:   return 10;
+    case SPD_15:   return 15;
     case SPD_20:   return 20;
+    case SPD_25:   return 25;
     case SPD_30:   return 30;
+    case SPD_35:   return 35;
     case SPD_40:   return 40;
+    case SPD_45:   return 45;
     case SPD_50:   return 50;
+    case SPD_55:   return 55;
+    case SPD_60:   return 60;
+    case SPD_65:   return 65;
     case SPD_70:   return 70;
+    case SPD_75:   return 75;
+    case SPD_80:   return 70;
+    case SPD_85:   return 85;
+    case SPD_90:   return 90;
+    case SPD_95:   return 95;
     case SPD_100:  return 100;
     default:       return 0;
   }

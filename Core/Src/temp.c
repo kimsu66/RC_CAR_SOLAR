@@ -1,35 +1,47 @@
 /*
  * temp.c
  *
- *  Created on: 2026. 3. 2.
+ *  Created on: 2026. 3. 5.
  *      Author: kimsuyeon
  */
 
+
 #include "temp.h"
-#include <string.h>
 #include <stdio.h>
 
-uint16_t read_adc()
+#define TEMP_WARNING_THRESHOLD  50  // 50도 이상 시 감속 시작
+#define TEMP_DANGER_THRESHOLD   70  // 70도 이상 시 즉각 위험
+
+#include "adc.h"
+
+uint16_t Temp_ReadADC(void)
 {
-    HAL_ADC_Start(&hadc1);
-    HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
-    return HAL_ADC_GetValue(&hadc1);
-    HAL_ADC_Stop(&hadc1);
+    return adc_buf[0];   // Rank1 = ADC_CHANNEL_6 = PA6
 }
 
-// ln(x) 근사용 정수 함수
-// x는 1~100 범위에서 사용 (스케일된 값)
-int32_t ln_approx(int32_t x)
+//// ADC 센서
+//uint16_t Temp_ReadADC(void)
+//{
+//    HAL_ADC_Start(&hadc1);
+//    HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
+//
+//    uint16_t adc = HAL_ADC_GetValue(&hadc1);
+//
+//    HAL_ADC_Stop(&hadc1);
+//
+//    return adc;
+//}
+
+/* ln 근사 */
+static int32_t ln_approx(int32_t x)
 {
-    // ln(x) ≈ 2*(x-1)/(x+1)
     return (2000 * (x - 1000)) / (x + 1000);
 }
 
-int16_t get_temperature()
+// 3. 온도 계산
+int16_t Temp_CalcCelsius(uint16_t adc)
 {
-    uint16_t adc = read_adc();
-
-    // mV 계산
+		// mV 계산
     int32_t vout = (adc * VREF_mV) / ADC_MAX;
 
     // 저항 계산
@@ -38,51 +50,62 @@ int16_t get_temperature()
 
     // ln(R/R0) 계산 (×1000 스케일)
     int32_t ratio = (r_ntc * 1000) / R0;
-    int32_t ln_val = ln_approx(ratio);
 
     // Beta 식 계산 (Kelvin ×100)
-    int32_t tempK = 1 / ( (1.0 / T0) + (ln_val / (BETA * 1000.0)) );
+    int32_t ln_val = ln_approx(ratio);
 
-    // 위 식 float 없이 변형 ↓
-    tempK = (T0 * BETA) / (BETA + ln_val);
+    // 위 식 float 없이 변형
+    int32_t tempK = (T0 * BETA) / (BETA + ln_val);
 
     // °C 변환
     int16_t tempC = (tempK - 27315) / 100;
 
     return tempC;
+
 }
 
-void print_temperature()
+// 5. UART 디버그
+void Temp_DebugPrint(uint16_t adc, int16_t temp, uint8_t speed)
 {
-    int16_t temp = get_temperature();
+    uint32_t voltage = (adc * 3300) / 4095;
 
-    char msg[50];
-    sprintf(msg, "Temp: %d C\r\n", temp);
-    HAL_UART_Transmit(&huart2, (uint8_t*)msg, strlen(msg), 100);
+    printf("ADC: %d\r\n", adc);
+
+    printf("Voltage: %lu.%03lu V\r\n",
+           voltage / 1000,
+           voltage % 1000);
+
+    printf("Temp: %d C\r\n", temp);
+
+    printf("Speed: %d %%\r\n", speed);
+
+    printf("===========\r\n");
 }
 
-int update_speed_by_temp(int temp, int current_speed, int base_speed)
+// 온도 레벨 판정 함수
+TempLevel_t Temp_GetLevel(int16_t temp)
 {
-    const int min_speed  = 30;
+    if (temp >= TEMP_DANGER_THRESHOLD)  return TEMP_DANGER;
+    if (temp >= TEMP_WARNING_THRESHOLD) return TEMP_WARNING;
+    return TEMP_SAFE;
+}
 
-    if (temp > 50)
-    {
-        if (current_speed > min_speed)
-        {
-            current_speed -= 5;
-            if (current_speed < min_speed)
-                current_speed = min_speed;
-        }
-    }
-    else
-    {
-        if (current_speed < base_speed)
-        {
-            current_speed += 5;
-            if (current_speed > base_speed)
-                current_speed = base_speed;
-        }
+// Gas_TaskPPM과 동일하게 레벨을 반환하는 함수
+TempLevel_t Temp_TaskLevel(void)
+{
+    uint16_t adc = Temp_ReadADC();
+    int16_t temp = Temp_CalcCelsius(adc);
+
+    // 현재 온도에 따른 레벨 확인
+    TempLevel_t level = Temp_GetLevel(temp);
+
+    // 디버그 출력
+    printf("Temp ADC: %d | Temp: %d C | Status: ", adc, temp);
+    switch(level) {
+        case TEMP_SAFE:    printf("[SAFE]\r\n"); break;
+        case TEMP_WARNING: printf("[WARNING - HIGH TEMP]\r\n"); break;
+        case TEMP_DANGER:  printf("[! DANGER - OVERHEAT !]\r\n"); break;
     }
 
-    return current_speed;
+    return level;
 }

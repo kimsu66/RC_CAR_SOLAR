@@ -20,12 +20,26 @@
 typedef enum
 {
   SPD_STOP = 0,   // 0%
-	SPD_20,
-  SPD_30,         // 30%
-	SPD_40,
-  SPD_50,         // 50%
-  SPD_70,         // 70%
-  SPD_100         // 100%
+  SPD_5    = 5,
+  SPD_10   = 10,
+  SPD_15   = 15,
+  SPD_20   = 20,
+  SPD_25   = 25,
+  SPD_30   = 30,
+  SPD_35   = 35,
+  SPD_40   = 40,
+  SPD_45   = 45,
+  SPD_50   = 50,
+  SPD_55   = 55,
+  SPD_60   = 60,
+  SPD_65   = 65,
+  SPD_70   = 70,
+  SPD_75   = 75,
+  SPD_80   = 80,
+  SPD_85   = 85,
+  SPD_90   = 90,
+  SPD_95   = 95,
+  SPD_100  = 100
 } speed_state_t;
 
 

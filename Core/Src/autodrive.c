@@ -33,6 +33,21 @@ static char act_str[10];
 
 // ================= 초기화 =================
 
+uint8_t auto_mode = 0;
+uint8_t current_speed = 50;
+
+
+void Drive_Control(uint8_t cmd, uint8_t speed) {
+    switch (cmd) {
+        case 'w': auto_mode = 0; Car_MovePercent(CAR_FRONT, speed); break;
+        case 's': auto_mode = 0; Car_MovePercent(CAR_BACK, speed); break;
+        case 'a': auto_mode = 0; Car_MovePercent(CAR_LEFT, speed); break;
+        case 'd': auto_mode = 0; Car_MovePercent(CAR_RIGHT, speed); break;
+        case 'q': auto_mode = 1; break;
+        default:  auto_mode = 0; Car_Stop(); break;
+    }
+}
+
 void AutoDrive_Init(void)
 {
     current_action = ACT_STOP;
@@ -88,22 +103,22 @@ void AutoDrive_Run(void)
     switch(current_action)
     {
         case ACT_FRONT:
-            Car_Move(CAR_FRONT, SPD_50);
+            Car_Move(CAR_FRONT, current_speed);
             strcpy(act_str, "FRONT");
             break;
 
         case ACT_BACK:
-            Car_Move(CAR_BACK, SPD_70);
+            Car_Move(CAR_BACK, current_speed);
             strcpy(act_str, "BACK");
             break;
 
         case ACT_LEFT:
-            Car_Move(CAR_LEFT, SPD_70);
+            Car_Move(CAR_LEFT, current_speed);
             strcpy(act_str, "LEFT");
             break;
 
         case ACT_RIGHT:
-            Car_Move(CAR_RIGHT, SPD_70);
+            Car_Move(CAR_RIGHT, current_speed);
             strcpy(act_str, "RIGHT");
             break;
 

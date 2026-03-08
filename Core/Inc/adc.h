@@ -29,12 +29,15 @@ extern "C" {
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
+#include <stdint.h>  // uint16_t를 위해 추가
 
 /* USER CODE END Includes */
 
 extern ADC_HandleTypeDef hadc1;
 
 /* USER CODE BEGIN Private defines */
+
+extern uint16_t adc_buf[2];
 
 /* USER CODE END Private defines */
 
