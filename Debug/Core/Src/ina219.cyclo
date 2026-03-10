@@ -1,3 +1,3 @@
 ../Core/Src/ina219.c:12:9:INA219_Init	2
-../Core/Src/ina219.c:31:9:INA219_ReadBusVoltage_mV	2
-../Core/Src/ina219.c:44:9:INA219_ReadCurrent_mA	2
+../Core/Src/ina219.c:31:9:INA219_ReadBusVoltage_mV	1
+../Core/Src/ina219.c:56:9:INA219_ReadCurrent_mA	2
