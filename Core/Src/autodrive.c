@@ -34,17 +34,19 @@ static char act_str[10];
 // ================= 초기화 =================
 
 uint8_t auto_mode = 0;
-uint8_t current_speed = 50;
+uint8_t current_speed = 80;
+
+uint8_t stop_flag = 1;
 
 
 void Drive_Control(uint8_t cmd, uint8_t speed) {
     switch (cmd) {
-        case 'w': auto_mode = 0; Car_MovePercent(CAR_FRONT, speed); break;
-        case 's': auto_mode = 0; Car_MovePercent(CAR_BACK, speed); break;
-        case 'a': auto_mode = 0; Car_MovePercent(CAR_LEFT, speed); break;
-        case 'd': auto_mode = 0; Car_MovePercent(CAR_RIGHT, speed); break;
+        case 'w': auto_mode = 0; Car_MovePercent(CAR_FRONT, speed); stop_flag = 0; break;
+        case 's': auto_mode = 0; Car_MovePercent(CAR_BACK, speed); stop_flag = 0; break;
+        case 'a': auto_mode = 0; Car_MovePercent(CAR_LEFT, speed); stop_flag = 0; break;
+        case 'd': auto_mode = 0; Car_MovePercent(CAR_RIGHT, speed); stop_flag = 0; break;
         case 'q': auto_mode = 1; break;
-        default:  auto_mode = 0; Car_Stop(); break;
+        default:  auto_mode = 0; Car_Stop(); stop_flag = 1; break;
     }
 }
 
@@ -58,9 +60,6 @@ void AutoDrive_Init(void)
 
 void AutoDrive_Run(void)
 {
-//    uint16_t dist_L = dist_L;  // ultrasonic에서 extern
-//    uint16_t dist_C = dist_C;
-//    uint16_t dist_R = dist_R;
 
     action_t next_action = current_action;
 
@@ -104,26 +103,31 @@ void AutoDrive_Run(void)
     {
         case ACT_FRONT:
             Car_Move(CAR_FRONT, current_speed);
+            stop_flag = 0;
             strcpy(act_str, "FRONT");
             break;
 
         case ACT_BACK:
             Car_Move(CAR_BACK, current_speed);
+            stop_flag = 0;
             strcpy(act_str, "BACK");
             break;
 
         case ACT_LEFT:
             Car_Move(CAR_LEFT, current_speed);
+            stop_flag = 0;
             strcpy(act_str, "LEFT");
             break;
 
         case ACT_RIGHT:
             Car_Move(CAR_RIGHT, current_speed);
+            stop_flag = 0;
             strcpy(act_str, "RIGHT");
             break;
 
         default:
             Car_Stop();
+            stop_flag = 1;
             strcpy(act_str, "STOP");
             break;
     }

@@ -243,6 +243,10 @@ int main(void)
 				AutoDrive_Run();
 		}
 
+  	if (stop_flag)
+  		printf("0 \r\n");
+  	else
+  		printf("%d \r\n", current_speed);
 
   	printf("=====================\r\n");
 
