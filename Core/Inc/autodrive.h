@@ -24,4 +24,7 @@ void AutoDrive_Run(void);
 // 현재 동작 문자열 (디버그용)
 const char* AutoDrive_GetActionString(void);
 
+// 속도측정용?
+//int AutoDrive_IsStopped(void);
+
 #endif /* INC_AUTODRIVE_H_ */

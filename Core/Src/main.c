@@ -196,11 +196,34 @@ int main(void)
   	GasLevel_t gas_status = Gas_TaskPPM();
 
   	// 온도, 가스에 따른 감
+  	// 온도, 가스에 따른 감
   	if (gas_status != GAS_SAFE || temp_status != TEMP_SAFE) {
-				if (current_speed >= 5) current_speed -= 5;
-				else                   current_speed = 0;
+  		uint8_t reduction_step = 0;
 
-				// 가스 때문에 속도가 변할 때마다 즉시 적용
+  		// 1단계 : 둘 다 위
+				if (gas_status != GAS_SAFE && temp_status != TEMP_SAFE) {
+	        reduction_step = 5;
+				}
+				// 2단계 둘 중 하나만위
+				else                  reduction_step = 1;
+
+				// reduction
+				if (current_speed > 20)
+				{
+					if (current_speed >= 20 + reduction_step)
+					{
+						current_speed -= reduction_step;
+					}
+					else
+					{
+						current_speed = 20;
+					}
+				}
+				else {
+					current_speed = 20;
+				}
+
+				// 속도가 변할 때마다 즉시 적용
 				Drive_Control(uart1_cmd, current_speed);
 		}
 
@@ -219,6 +242,7 @@ int main(void)
 				Ultrasonic_Task();
 				AutoDrive_Run();
 		}
+
 
   	printf("=====================\r\n");
 
