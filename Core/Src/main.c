@@ -20,6 +20,7 @@
 #include "main.h"
 #include "adc.h"
 #include "dma.h"
+#include "i2c.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -40,7 +41,7 @@
 #include "ultrasonic.h"
 #include "autodrive.h"
 #include "gas.h"
-
+#include "ina219.h"
 
 /* USER CODE END Includes */
 
@@ -95,6 +96,10 @@ uint8_t rx1_data;
 
 volatile uint8_t uart1_flag = 0;
 volatile uint8_t uart1_cmd;
+
+extern I2C_HandleTypeDef hi2c3; // MX에서 설정한 I2C3 핸들
+INA219_t battery_monitor;
+int32_t v_mv, i_ma;
 
 /* USER CODE END PV */
 
@@ -163,6 +168,7 @@ int main(void)
   MX_TIM11_Init();
   MX_USART1_UART_Init();
   MX_ADC1_Init();
+  MX_I2C3_Init();
   /* USER CODE BEGIN 2 */
 
   HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_buf, 2);
@@ -181,6 +187,10 @@ int main(void)
   Ultrasonic_Init();
 
   AutoDrive_Init();
+
+  if (INA219_Init(&battery_monitor, &hi2c3) != HAL_OK) {
+      printf("INA219 Init Failed!\r\n");
+  }
 
 
   /* USER CODE END 2 */
@@ -248,10 +258,14 @@ int main(void)
   	else
   		printf("%d \r\n", current_speed);
 
-  	printf("=====================\r\n");
 
-/// ======= car test ========
-//  	Car_test();
+  	v_mv = INA219_ReadBusVoltage_mV(&battery_monitor);
+		i_ma = INA219_ReadCurrent_mA(&battery_monitor);
+
+		// 12.5V 150mA인 경우: "Bat: 12.50 V, Cur: 150 mA"
+		printf("Bat: %ld.%02ld V, Cur: %ld mA\r\n", v_mv / 1000, (v_mv % 1000) / 10, i_ma);
+
+  	printf("=====================\r\n");
 
   	HAL_Delay(500);
 
