@@ -201,37 +201,43 @@ int main(void)
   while (1)
   {
 
-  	// 온도, 가스 상태 확인 (반환값 받기)
+  	// temp, gas, current 상태 확인 (반환값 받기)
   	TempLevel_t temp_status = Temp_TaskLevel();
   	GasLevel_t gas_status = Gas_TaskPPM();
+  	v_mv = INA219_ReadBusVoltage_mV(&battery_monitor);
+    i_ma = INA219_ReadCurrent_mA(&battery_monitor);
 
-  	// 온도, 가스에 따른 감
-  	// 온도, 가스에 따른 감
-  	if (gas_status != GAS_SAFE || temp_status != TEMP_SAFE) {
-  		uint8_t reduction_step = 0;
+    // 2. 위험 요소 개수 카운트
+		uint8_t danger_count = 0;
+		if (temp_status != TEMP_SAFE) danger_count++;
+		if (gas_status != GAS_SAFE)   danger_count++;
+		if (i_ma >= 800)              danger_count++; // 과전류 기준 800mA
 
-  		// 1단계 : 둘 다 위
-				if (gas_status != GAS_SAFE && temp_status != TEMP_SAFE) {
-	        reduction_step = 5;
-				}
-				// 2단계 둘 중 하나만위
-				else                  reduction_step = 1;
+		// 3. 위험 요소가 하나라도 있다면 감속 로직 실행
+		if (danger_count > 0) {
+				uint8_t reduction_step = 0;
 
-				// reduction
-				if (current_speed > 20)
-				{
-					if (current_speed >= 20 + reduction_step)
-					{
-						current_speed -= reduction_step;
-					}
-					else
-					{
+				// 단계별 reduction step 설정
+				if (danger_count == 1)      reduction_step = 1;
+				else if (danger_count == 2) reduction_step = 5;
+				else if (danger_count >= 3) reduction_step = 10;
+
+				// current_speed 차감 (최저 20 제한)
+				if (current_speed > 20) {
+						if (current_speed >= 20 + reduction_step) {
+								current_speed -= reduction_step;
+						} else {
+								current_speed = 20;
+						}
+				} else {
 						current_speed = 20;
-					}
 				}
-				else {
-					current_speed = 20;
-				}
+
+				// 변경된 속도 즉시 반영
+				Drive_Control(uart1_cmd, current_speed);
+
+				// 디버깅용 메시지 (어떤게 문제인지 확인용)
+				if (i_ma >= 800) printf("[BMS Warning] Overcurrent Detected!\n");
 
 				// 속도가 변할 때마다 즉시 적용
 				Drive_Control(uart1_cmd, current_speed);
@@ -244,7 +250,7 @@ int main(void)
 				HAL_UART_Transmit(&huart2, (uint8_t*)&uart1_cmd, 1, 10);
 		}
 
-  	ultrasonic_uart2_debugmsg();
+//  	ultrasonic_uart2_debugmsg();
 
   	// 자율주행모드
   	if(auto_mode)
@@ -253,17 +259,11 @@ int main(void)
 				AutoDrive_Run();
 		}
 
-  	if (stop_flag)
-  		printf("0 \r\n");
-  	else
-  		printf("%d \r\n", current_speed);
-
-
-  	v_mv = INA219_ReadBusVoltage_mV(&battery_monitor);
-		i_ma = INA219_ReadCurrent_mA(&battery_monitor);
-
 		// 12.5V 150mA인 경우: "Bat: 12.50 V, Cur: 150 mA"
 		printf("Bat: %ld.%02ld V, Cur: %ld mA\r\n", v_mv / 1000, (v_mv % 1000) / 10, i_ma);
+
+  	if (stop_flag) printf("Current SPEED : 0 \r\n");
+  	else printf("Current SPEED : %d \r\n", current_speed);
 
   	printf("=====================\r\n");
 
