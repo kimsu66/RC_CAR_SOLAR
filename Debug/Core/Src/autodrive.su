@@ -1,0 +1,4 @@
+../Core/Src/autodrive.c:42:6:Drive_Control	16	static
+../Core/Src/autodrive.c:53:6:AutoDrive_Init	4	static
+../Core/Src/autodrive.c:61:6:AutoDrive_Run	24	static
+../Core/Src/autodrive.c:138:13:AutoDrive_GetActionString	4	static

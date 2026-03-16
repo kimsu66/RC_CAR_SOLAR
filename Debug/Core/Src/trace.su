@@ -1,0 +1,4 @@
+../Core/Src/trace.c:35:6:Sensor_Filter	16	static
+../Core/Src/trace.c:59:6:Sun_Position	24	static
+../Core/Src/trace.c:75:6:Target_Update	4	static
+../Core/Src/trace.c:108:6:Servo_Move	4	static

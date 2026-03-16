@@ -1,0 +1,9 @@
+../Core/Src/speed.c:21:16:state_to_percent	16	static
+../Core/Src/speed.c:50:6:Speed_Init	24	static
+../Core/Src/speed.c:62:6:Speed_Start	8	static
+../Core/Src/speed.c:70:6:Speed_SetRaw	32	static
+../Core/Src/speed.c:85:6:Speed_SetPercent	32	static
+../Core/Src/speed.c:106:6:Speed_SetPercentBoth	16	static
+../Core/Src/speed.c:112:6:Speed_SetState	16	static
+../Core/Src/speed.c:117:6:Speed_SetStateBoth	16	static
+../Core/Src/speed.c:123:6:Speed_StopAll	8	static
