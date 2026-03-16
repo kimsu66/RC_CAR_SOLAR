@@ -3,4 +3,4 @@
 ../Core/Src/temp.c:43:9:Temp_CalcCelsius	1
 ../Core/Src/temp.c:69:6:Temp_DebugPrint	1
 ../Core/Src/temp.c:87:13:Temp_GetLevel	3
-../Core/Src/temp.c:95:13:Temp_TaskLevel	5
+../Core/Src/temp.c:95:13:Temp_TaskLevel	1

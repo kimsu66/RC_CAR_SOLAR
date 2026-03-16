@@ -117,22 +117,22 @@ GasLevel_t Gas_TaskPPM(void)
 
     GasLevel_t level = Gas_GetLevelFromPPM(ppm);
 
-    printf("GAS : ADC:%d  PPM:%lu Status : ", adc, ppm);
-
-    switch(level)
-    {
-        case GAS_SAFE:
-            printf("[SAFE]\r\n");
-            break;
-
-        case GAS_WARNING:
-            printf("[WARNING]\r\n");
-            break;
-
-        case GAS_DANGER:
-            printf("[! DANGER !]\r\n");
-            break;
-    }
+//    printf("GAS : ADC:%d  PPM:%lu Status : ", adc, ppm);
+//
+//    switch(level)
+//    {
+//        case GAS_SAFE:
+//            printf("[SAFE]\r\n");
+//            break;
+//
+//        case GAS_WARNING:
+//            printf("[WARNING]\r\n");
+//            break;
+//
+//        case GAS_DANGER:
+//            printf("[! DANGER !]\r\n");
+//            break;
+//    }
 
     return level;
 }

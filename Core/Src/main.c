@@ -256,8 +256,8 @@ int main(void)
 		/* ================= UART RC 제어 ================= */
 		Ultrasonic_Task();
 //		ultrasonic_uart2_debugmsg();
-		printf("L:%d C:%d R:%d | %s\r\n",
-										dist_L, dist_C, dist_R, AutoDrive_GetActionString());
+//		printf("L:%d C:%d R:%d | %s\r\n",
+//										dist_L, dist_C, dist_R, AutoDrive_GetActionString());
 
 		if (uart1_flag) {
 				uart1_flag = 0;
@@ -277,22 +277,6 @@ int main(void)
 		}
 
 
-		/* ================= 태양광 추적 ================= */
-
-		if (HAL_GetTick() - sensor_time >= 50)
-		{
-				sensor_time = HAL_GetTick();
-
-				Sensor_Filter();
-				Sun_Position();
-				Target_Update();
-		}
-
-		if (HAL_GetTick() - servo_time >= 20)
-		{
-				servo_time = HAL_GetTick();
-				Servo_Move();
-		}
 
 		/* ================= 디버그 출력 ================= */
 
@@ -301,14 +285,28 @@ int main(void)
 //					 (v_mv % 1000) / 10,
 //					 i_ma);
 //
-//		if (stop_flag)
-//				printf("Current SPEED : 0\r\n");
-//		else
-//				printf("Current SPEED : %d\r\n", current_speed);
-//
-//		printf("=====================\r\n");
+		if (stop_flag)
+		{
+			printf("Current SPEED : 0\r\n");
+				/* ================= 태양광 추적 ================= */
+				if (HAL_GetTick() - sensor_time >= 50)
+				{
+						sensor_time = HAL_GetTick();
 
-//		HAL_Delay(50);
+						Sensor_Filter();
+
+						Sun_Position();
+						Target_Update();
+				}
+
+				if (HAL_GetTick() - servo_time >= 20)
+				{
+						servo_time = HAL_GetTick();
+						Servo_Move();
+				}
+		}
+		else
+			printf("Current SPEED : %d\r\n", current_speed);
 
 
 

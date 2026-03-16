@@ -101,12 +101,12 @@ TempLevel_t Temp_TaskLevel(void)
     TempLevel_t level = Temp_GetLevel(temp);
 
     // 디버그 출력
-    printf("Temp ADC: %d | Temp: %d C | Status: ", adc, temp);
-    switch(level) {
-        case TEMP_SAFE:    printf("[SAFE]\r\n"); break;
-        case TEMP_WARNING: printf("[WARNING - HIGH TEMP]\r\n"); break;
-        case TEMP_DANGER:  printf("[! DANGER - OVERHEAT !]\r\n"); break;
-    }
+//    printf("Temp ADC: %d | Temp: %d C | Status: ", adc, temp);
+//    switch(level) {
+//        case TEMP_SAFE:    printf("[SAFE]\r\n"); break;
+//        case TEMP_WARNING: printf("[WARNING - HIGH TEMP]\r\n"); break;
+//        case TEMP_DANGER:  printf("[! DANGER - OVERHEAT !]\r\n"); break;
+//    }
 
     return level;
 }

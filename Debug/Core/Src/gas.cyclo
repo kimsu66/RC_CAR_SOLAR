@@ -4,4 +4,4 @@
 ../Core/Src/gas.c:67:10:Gas_ComputeRs	2
 ../Core/Src/gas.c:79:10:Gas_ComputePPM	6
 ../Core/Src/gas.c:101:12:Gas_GetLevelFromPPM	3
-../Core/Src/gas.c:108:12:Gas_TaskPPM	5
+../Core/Src/gas.c:108:12:Gas_TaskPPM	1
